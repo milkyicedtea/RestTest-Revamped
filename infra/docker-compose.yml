@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: benchmark
+    ports:
+      - "5433:5432"
+    networks:
+      - apinet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      retries: 15
+
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    ports:
+      - "6380:6379"
+    networks:
+      - apinet
+    healthcheck:
+      test: ["CMD", "redis-cli", "PING"]
+      interval: 2s
+      retries: 10
+
+  # Add APIs starting from here! Try to keep them alphabetically sorted, please :)
+  hono:
+    build: ../languages/typescript/hono
+    ports:
+      - "4101:4101"
+    networks:
+      - apinet
+    # healthcheck:
+    #   # test: ["CMD", "curl", "-f", "http://localhost:4101/health"]
+    #   interval: 1s
+    #   retries: 20
+
+  oha:
+    build: ./oha
+    networks:
+      - apinet
+    volumes:
+      - ../infra/results:/app/results
+    entrypoint: ["sleep", "infinity"]
+
+networks:
+  apinet:
+    driver: bridge

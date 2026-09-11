@@ -1,0 +1,4 @@
+.tanstack
+dist
+
+docker-compose.yml

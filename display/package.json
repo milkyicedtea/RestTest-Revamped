@@ -1,0 +1,38 @@
+{
+  "name": "resttest-display",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "bunx --bun vite build",
+    "dev": "bunx --bun vite dev",
+    "duplicates": "bunx --bun jscpd src/",
+    "everything": "bun run lint && bun run typecheck && bun run fmt && bun run duplicates",
+    "fmt": "biome format --write",
+    "lint": "biome check --write",
+    "loc": "bunx --bun cloc src/ --include-ext=ts,tsx --by-file",
+    "start": "bun run server.ts",
+    "typecheck": "bunx --bun typescript --noEmit"
+  },
+  "dependencies": {
+    "@mantine/core": "^9.6.0",
+    "@mantine/hooks": "^9.6.0",
+    "@tabler/icons-react": "^3.46.0",
+    "@tanstack/react-query": "^5.102.8",
+    "@tanstack/react-router": "^1.170.32",
+    "@tanstack/react-router-ssr-query": "^1.167.2",
+    "@tanstack/react-start": "^1.168.49",
+    "clsx": "^2.1.1",
+    "mantine-datatable": "^9.4.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
+    "@types/bun": "latest",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "vite": "^8.2.2"
+  }
+}

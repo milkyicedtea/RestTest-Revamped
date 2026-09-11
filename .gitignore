@@ -1,0 +1,17 @@
+# all env files (not templates)
+**/.env
+
+# Javascript/Typescript
+**/node_modules
+
+# Python
+**/pycache
+**/Scripts
+
+# ides/environment specific files/folders
+.DS_Store
+.vscode
+.idea
+.crush
+
+display/docker-compose.yml

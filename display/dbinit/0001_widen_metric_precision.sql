@@ -1,0 +1,11 @@
+ALTER TABLE result_metrics ALTER COLUMN requests_per_sec TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN size_per_sec TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_mean TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_stddev TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_max TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_min TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_p50 TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_p75 TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_p90 TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_p95 TYPE DECIMAL(18, 6);
+ALTER TABLE result_metrics ALTER COLUMN rps_p99 TYPE DECIMAL(18, 6);
