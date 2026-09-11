@@ -1,27 +1,63 @@
-import { mkdirSync, existsSync } from "fs"
-import type { ResolvedFramewrok } from "@/config"
-import { runOha } from "@/oha"
-import { wrapResult } from "@/formatter"
-import { uploadResult } from "@/upload"
-import type { UploadSessionOptions } from "@/types"
+import { existsSync, mkdirSync } from "node:fs";
+import type { Config, LoadGenerator, ResolvedFramework } from "@/config";
+import { wrapResult } from "@/formatter";
+import { runOha } from "@/oha";
+import type { MachineInput } from "@/types";
+import { uploadResult } from "@/upload";
 
-export async function runFramework(framework: ResolvedFramewrok, uploadOptions: UploadSessionOptions): Promise<void> {
-  for (const t of framework.tests) {
-    if (!existsSync("../results")) mkdirSync("../results", { recursive: true })
+const DURATION = "10s";
 
-    const url = `http://${framework.container}:${framework.port}${t.endpoint}`
-    const tempHost = `../results/oha_${framework.language}_${framework.name}_${t.id}.json`
-    const tempContainer = `/app/results/oha_${framework.language}_${framework.name}_${t.id}.json`
+export interface RunnerOptions {
+	generator: LoadGenerator;
+	machines: Map<string, MachineInput>;
+	upload: {
+		enabled: boolean;
+		displayApiUrl?: string;
+	};
+}
 
-    console.log(`Running ${framework.language}/${framework.name} -> ${t.id}`)
+export async function runFramework(
+	config: Config,
+	framework: ResolvedFramework,
+	options: RunnerOptions,
+): Promise<void> {
+	const server = config.servers.find((s) => s.name === framework.server);
 
-    await runOha(url, tempContainer)
+	if (!server) {
+		throw new Error(
+			`Server "${framework.server}" (framework ${framework.name}) not found in config.servers`,
+		);
+	}
 
-    const wrapped = wrapResult(framework.language, framework.name, t.id, t.endpoint, tempHost)
+	if (!existsSync("results")) mkdirSync("results", { recursive: true });
 
-    if (uploadOptions.enabled && uploadOptions.displayApiUrl && uploadOptions.machine) {
-      await uploadResult({ ...wrapped, machine: uploadOptions.machine }, uploadOptions.displayApiUrl)
-      console.log(`Uploaded ${framework.language}/${framework.name} -> ${t.id}`)
-    }
-  }
+	for (const t of framework.tests) {
+		const url = `http://${server.address}:${framework.port}${t.endpoint}`;
+
+		console.log(
+			`Running ${framework.language}/${framework.name} -> ${t.id} (${url})`,
+		);
+
+		const raw = await runOha(options.generator, {
+			url,
+			duration: DURATION,
+		});
+
+		const wrapped = wrapResult(
+			framework.language,
+			framework.name,
+			t.id,
+			t.endpoint,
+			raw,
+		);
+
+		const machine = options.machines.get(framework.server);
+
+		if (options.upload.enabled && options.upload.displayApiUrl && machine) {
+			await uploadResult({ ...wrapped, machine }, options.upload.displayApiUrl);
+			console.log(
+				`Uploaded ${framework.language}/${framework.name} -> ${t.id}`,
+			);
+		}
+	}
 }

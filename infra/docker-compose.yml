@@ -1,11 +1,14 @@
 services:
   postgres:
     image: postgres:18-bookworm
+    profiles: ["db"]
+    env_file:
+      - .env
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: benchmark
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-benchmark}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     networks:
       - apinet
     healthcheck:
@@ -15,8 +18,9 @@ services:
 
   dragonfly:
     image: docker.dragonflydb.io/dragonflydb/dragonfly
+    profiles: ["db"]
     ports:
-      - "6380:6379"
+      - "${DRAGONFLY_HOST_PORT:-6380}:6379"
     networks:
       - apinet
     healthcheck:
@@ -27,22 +31,18 @@ services:
   # Add APIs starting from here! Try to keep them alphabetically sorted, please :)
   hono:
     build: ../languages/typescript/hono
+    profiles: ["api-hono"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:password@postgres:5432/benchmark}
+      PORT: ${HONO_PORT:-4101}
     ports:
-      - "4101:4101"
+      - "${HONO_HOST_PORT:-4101}:${HONO_PORT:-4101}"
     networks:
       - apinet
     # healthcheck:
     #   # test: ["CMD", "curl", "-f", "http://localhost:4101/health"]
     #   interval: 1s
     #   retries: 20
-
-  oha:
-    build: ./oha
-    networks:
-      - apinet
-    volumes:
-      - ../infra/results:/app/results
-    entrypoint: ["sleep", "infinity"]
 
 networks:
   apinet:

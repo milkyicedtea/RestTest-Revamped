@@ -2,7 +2,7 @@ import { SQL } from 'bun'
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 
-const db = new SQL("postgres://postgres:password@postgres:5432/benchmark")
+const db = new SQL(process.env.DATABASE_URL ?? "postgres://postgres:password@postgres:5432/benchmark")
 
 const app = new Hono()
 
@@ -25,6 +25,6 @@ app.get("/pg/read", async (c) => {
 })
 
 Bun.serve({
-  port: 4101,
+  port: Number(process.env.PORT ?? 4101),
   fetch: app.fetch
 })
